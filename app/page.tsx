@@ -1,230 +1,300 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { 
     Zap, 
     ShieldCheck, 
     Banknote, 
     CheckCircle2, 
     ArrowRight, 
-    CreditCard
+    CreditCard,
+    Star,
+    TrendingUp
 } from 'lucide-react';
 
-// Variabel animasi
-const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-};
+// --- ANIMATION COMPONENTS (Reusable & Pro) ---
 
-const staggerContainer = {
-    visible: { transition: { staggerChildren: 0.2 } }
+// Komponen untuk efek muncul saat di-scroll
+const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, margin: "-50px" });
+    
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            transition={{ duration: 0.8, delay: delay, ease: [0.22, 1, 0.36, 1] }} // Easing curve yang smooth
+            className={className}
+        >
+            {children}
+        </motion.div>
+    );
 };
 
 export default function HomePage() {
+    // Parallax Effect untuk Hero Background
+    const targetRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: targetRef,
+        offset: ["start start", "end start"],
+    });
+    
+    // Background bergerak lebih lambat dari scroll (Parallax)
+    const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const opacityBg = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
     return (
-        <div className="min-h-screen font-sans text-gray-900 overflow-x-hidden">
+        <div className="min-h-screen font-sans text-slate-900 overflow-x-hidden bg-white selection:bg-blue-100 selection:text-blue-900">
             
-            {/* --- HERO SECTION --- */}
-            <section className="relative bg-slate-900 text-white pt-24 pb-32 overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                    <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-                </div>
-
-                <div className="container mx-auto px-6 relative z-10 text-center">
-                    <motion.div 
-                        initial="hidden" 
-                        animate="visible" 
-                        variants={staggerContainer}
-                    >
-                        <motion.div variants={fadeInUp} className="mb-6 flex justify-center">
-                            <span className="bg-blue-500/20 text-blue-200 text-sm font-semibold px-4 py-1.5 rounded-full border border-blue-500/30">
-                                🚀 Solusi Keuangan #1 di Indonesia
-                            </span>
-                        </motion.div>
-
-                        <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight leading-tight">
-                            Solusi Pinjaman Online <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                                Terpercaya & Cepat
-                            </span>
-                        </motion.h1>
-
-                        <motion.p variants={fadeInUp} className="text-lg md:text-2xl mb-10 text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                            Proses cair dalam hitungan menit. Tanpa ribet, data aman, dan bunga yang sangat kompetitif untuk kebutuhan Anda.
-                        </motion.p>
-
-                        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            <Link href="/register">
-                                <motion.button 
-                                    whileHover={{ scale: 1.05 }} 
-                                    whileTap={{ scale: 0.95 }}
-                                    className="bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-blue-600/30 hover:bg-blue-700 transition flex items-center gap-2"
-                                >
-                                    Daftar Sekarang <ArrowRight size={20} />
-                                </motion.button>
-                            </Link>
-                            <Link href="/login">
-                                <motion.button 
-                                    whileHover={{ scale: 1.05 }} 
-                                    whileTap={{ scale: 0.95 }}
-                                    className="px-8 py-4 rounded-full font-bold text-lg text-white border border-slate-600 hover:bg-slate-800 transition bg-slate-900/50 backdrop-blur-sm"
-                                >
-                                    Login Akun
-                                </motion.button>
-                            </Link>
-                        </motion.div>
-                    </motion.div>
-                </div>
+            {/* --- HERO SECTION (PARALLAX + CUSTOM BG) --- */}
+            <section ref={targetRef} className="relative h-[110vh] flex items-center justify-center overflow-hidden">
                 
-                <div className="absolute bottom-0 left-0 w-full leading-none rotate-180 text-slate-50">
-                    <svg className="relative block w-[calc(100%+1.3px)] h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="currentColor"></path>
-                    </svg>
+                {/* 1. Background Image Custom dengan Parallax */}
+                <motion.div 
+                    style={{ y: yBg, opacity: opacityBg }} 
+                    className="absolute inset-0 z-0"
+                >
+                    {/* GANTI '/landing-bg.jpg' DENGAN NAMA FILE KAMU DI FOLDER PUBLIC */}
+                    <Image 
+                        src="/landing-bg.jpg" 
+                        alt="Hero Background" 
+                        fill 
+                        className="object-cover blur-sm scale-110" // blur-sm bikin agak blur, scale biar ga ada gap saat parallax
+                        priority
+                    />
+                    {/* Overlay Gelap agar teks terbaca jelas (Pro Trick) */}
+                    <div className="absolute inset-0 bg-slate-900/70 bg-gradient-to-b from-slate-900/50 via-slate-900/70 to-white"></div>
+                </motion.div>
+
+                <div className="container mx-auto px-6 relative z-10 text-center -mt-20">
+                    <FadeIn delay={0.1}>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white mb-8 shadow-2xl">
+                            <span className="flex h-2 w-2 relative">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            <span className="text-sm font-medium tracking-wide">Platform Peminjaman #1 Indonesia</span>
+                        </div>
+                    </FadeIn>
+
+                    <FadeIn delay={0.2}>
+                        <h1 className="text-5xl md:text-8xl font-bold text-white mb-8 tracking-tight leading-tight drop-shadow-lg">
+                            Dana Cepat. <br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-indigo-200 to-purple-200">
+                                Mimpi Melesat.
+                            </span>
+                        </h1>
+                    </FadeIn>
+
+                    <FadeIn delay={0.3}>
+                        <p className="text-lg md:text-2xl text-slate-200 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+                            Solusi finansial modern tanpa ribet. Cair dalam hitungan menit dengan keamanan enkripsi tingkat bank.
+                        </p>
+                    </FadeIn>
+
+                    <FadeIn delay={0.4} className="flex flex-col sm:flex-row gap-5 justify-center items-center">
+                        <Link href="/register">
+                            <motion.button 
+                                whileHover={{ scale: 1.05 }} 
+                                whileTap={{ scale: 0.95 }}
+                                className="group bg-blue-600 text-white px-10 py-5 rounded-full font-bold text-lg shadow-[0_20px_50px_rgba(37,99,235,0.5)] hover:bg-blue-500 transition-all flex items-center gap-2"
+                            >
+                                Ajukan Sekarang 
+                                <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                            </motion.button>
+                        </Link>
+                        <Link href="/login">
+                            <motion.button 
+                                whileHover={{ scale: 1.05 }} 
+                                whileTap={{ scale: 0.95 }}
+                                className="px-10 py-5 rounded-full font-bold text-lg text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm transition-all"
+                            >
+                                Masuk Akun
+                            </motion.button>
+                        </Link>
+                    </FadeIn>
+
+                    {/* Stats Floating (Optional Pro Touch) */}
+                    <FadeIn delay={0.6} className="mt-16 flex justify-center gap-8 md:gap-16 text-white/80">
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">50K+</div>
+                            <div className="text-xs uppercase tracking-widest">Nasabah</div>
+                        </div>
+                        <div className="w-px h-12 bg-white/20"></div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">5 Menit</div>
+                            <div className="text-xs uppercase tracking-widest">Pencairan</div>
+                        </div>
+                        <div className="w-px h-12 bg-white/20"></div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white">24/7</div>
+                            <div className="text-xs uppercase tracking-widest">Support</div>
+                        </div>
+                    </FadeIn>
                 </div>
             </section>
 
-            {/* --- FEATURES SECTION --- */}
-            <section className="py-24 bg-slate-50">
-                <div className="container mx-auto px-6">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-16"
-                    >
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Kenapa Memilih Kami?</h2>
-                        <p className="text-slate-600 text-lg max-w-2xl mx-auto">Kami berkomitmen memberikan layanan terbaik dengan teknologi terkini untuk kenyamanan finansial Anda.</p>
-                    </motion.div>
+            {/* --- FEATURES SECTION (Clean & Modern) --- */}
+            <section className="py-32 bg-slate-50 relative">
+                <div className="container mx-auto px-6 relative z-10">
+                    <FadeIn className="text-center mb-20">
+                        <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Kenapa Kami Berbeda?</h2>
+                        <p className="text-slate-600 text-xl max-w-2xl mx-auto">
+                            Kami menggabungkan teknologi AI dengan kenyamanan nasabah untuk pengalaman meminjam yang manusiawi.
+                        </p>
+                    </FadeIn>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <FeatureCard 
+                        <ProFeatureCard 
                             icon={Zap} 
-                            title="Proses Kilat" 
-                            desc="Sistem otomatis kami memproses pengajuan Anda dalam hitungan menit, bukan hari." 
-                            color="text-amber-500"
-                            bg="bg-amber-100"
+                            title="Approval Kilat AI" 
+                            desc="Algoritma cerdas kami memproses data Anda secara instan. Tidak ada lagi menunggu berhari-hari." 
+                            delay={0.1}
                         />
-                        <FeatureCard 
+                        <ProFeatureCard 
                             icon={ShieldCheck} 
                             title="Keamanan Terjamin" 
-                            desc="Data Anda dienkripsi dengan standar keamanan tingkat bank internasional." 
-                            color="text-blue-500"
-                            bg="bg-blue-100"
+                            desc="Data dilindungi enkripsi AES-256. Privasi Anda adalah prioritas mutlak kami." 
+                            delay={0.2}
                         />
-                        <FeatureCard 
+                        <ProFeatureCard 
                             icon={Banknote} 
-                            title="Bunga Kompetitif" 
-                            desc="Nikmati suku bunga rendah dan tenor fleksibel yang tidak membebani." 
-                            color="text-emerald-500"
-                            bg="bg-emerald-100"
+                            title="Bunga Transparan" 
+                            desc="Apa yang Anda lihat adalah apa yang Anda bayar. Tanpa biaya admin tersembunyi." 
+                            delay={0.3}
                         />
                     </div>
                 </div>
             </section>
 
-            {/* --- BENEFITS SECTION --- */}
-            <section className="py-24 bg-white relative overflow-hidden">
+            {/* --- BENEFITS SECTION (Visual & Interactive) --- */}
+            <section className="py-32 bg-white overflow-hidden">
                 <div className="container mx-auto px-6">
-                    <div className="flex flex-col md:flex-row items-center gap-12">
-                        <motion.div 
-                            className="w-full md:w-1/2"
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900">
-                                Keuntungan Eksklusif <br/> 
-                                <span className="text-blue-600">Tanpa Syarat Rumit</span>
-                            </h2>
-                            <p className="text-slate-600 mb-8 text-lg">
-                                Kami menyederhanakan birokrasi perbankan konvensional agar Anda bisa fokus pada kebutuhan Anda.
-                            </p>
-                            
-                            <div className="space-y-4">
-                                <BenefitItem text="Hanya butuh KTP & NPWP" />
-                                <BenefitItem text="Pencairan langsung ke rekening" />
-                                <BenefitItem text="Tanpa Agunan (KTA)" />
-                                <BenefitItem text="Layanan CS 24/7 Siap Membantu" />
-                            </div>
-                        </motion.div>
+                    <div className="flex flex-col lg:flex-row items-center gap-20">
+                        
+                        {/* Text Content */}
+                        <div className="w-full lg:w-1/2">
+                            <FadeIn>
+                                <h2 className="text-4xl md:text-6xl font-bold mb-8 text-slate-900 leading-tight">
+                                    Akses Finansial <br/> 
+                                    <span className="text-blue-600">Tanpa Batas.</span>
+                                </h2>
+                                <p className="text-slate-500 mb-10 text-xl leading-relaxed">
+                                    Lupakan tumpukan berkas. Kami menyederhanakan birokrasi agar Anda bisa fokus mewujudkan impian.
+                                </p>
+                                
+                                <div className="space-y-6">
+                                    <ProBenefitItem text="Hanya butuh KTP & NPWP" delay={0.1} />
+                                    <ProBenefitItem text="Pencairan langsung ke rekening" delay={0.2} />
+                                    <ProBenefitItem text="Tanpa Agunan (KTA Murni)" delay={0.3} />
+                                    <ProBenefitItem text="Limit hingga 50 Juta Rupiah" delay={0.4} />
+                                </div>
+                            </FadeIn>
+                        </div>
 
-                        <motion.div 
-                            className="w-full md:w-1/2 relative"
-                            initial={{ opacity: 0, x: 50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
-                        >
-                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-3xl shadow-2xl relative z-10 text-white transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                                <div className="flex justify-between items-start mb-8">
-                                    <div>
-                                        <p className="text-slate-400 text-sm">Total Limit</p>
-                                        <h3 className="text-3xl font-bold">Rp 50.000.000</h3>
+                        {/* Visual Card (Floating & Glass) */}
+                        <div className="w-full lg:w-1/2 relative">
+                            <FadeIn delay={0.3} className="relative z-10">
+                                {/* Abstract Background Blobs */}
+                                <div className="absolute -top-20 -right-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+                                <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+                                {/* The Card UI */}
+                                <motion.div 
+                                    whileHover={{ rotateY: 5, rotateX: -5 }}
+                                    transition={{ type: "spring", stiffness: 100 }}
+                                    style={{ perspective: 1000 }}
+                                    className="bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                                    
+                                    <div className="flex justify-between items-start mb-12 relative z-10">
+                                        <div>
+                                            <p className="text-slate-400 text-sm font-medium tracking-wider uppercase mb-1">Available Limit</p>
+                                            <h3 className="text-4xl font-bold">Rp 50.000.000</h3>
+                                        </div>
+                                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                                            <TrendingUp size={32} className="text-green-400"/>
+                                        </div>
                                     </div>
-                                    <CreditCard size={32} className="text-blue-400"/>
-                                </div>
-                                <div className="h-1 w-full bg-slate-700 rounded-full mb-8 overflow-hidden">
-                                    <div className="h-full w-3/4 bg-blue-500 rounded-full"></div>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <div>
-                                        <p className="text-xs text-slate-400">Card Holder</p>
-                                        <p className="font-semibold tracking-wide">MEMBER GOLD</p>
+
+                                    <div className="space-y-4 relative z-10">
+                                        <div className="h-2 w-full bg-slate-700/50 rounded-full overflow-hidden">
+                                            <motion.div 
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: "75%" }}
+                                                transition={{ duration: 1.5, ease: "circOut" }}
+                                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                                            ></motion.div>
+                                        </div>
+                                        <div className="flex justify-between text-sm text-slate-400">
+                                            <span>Credit Score</span>
+                                            <span className="text-white font-bold">Excellent (850)</span>
+                                        </div>
                                     </div>
-                                    <div className="w-10 h-6 bg-yellow-500/80 rounded flex justify-center items-center">
-                                        <div className="w-6 h-4 border border-yellow-200/50 rounded-sm"></div>
+
+                                    <div className="mt-12 flex items-center gap-4 pt-8 border-t border-white/10">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center font-bold text-black text-xs">
+                                            VIP
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-lg">Prioritas Utama</p>
+                                            <p className="text-slate-400 text-xs">Bunga spesial 0.9%</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="absolute -inset-4 bg-blue-600/30 blur-2xl rounded-full z-0"></div>
-                        </motion.div>
+                                </motion.div>
+                            </FadeIn>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* --- CTA SECTION --- */}
-            <section className="py-20 bg-blue-600 text-white relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            {/* --- CTA SECTION (Minimalist & Strong) --- */}
+            <section className="py-32 relative overflow-hidden bg-slate-900">
+                <div className="absolute inset-0 z-0">
+                    <Image 
+                        src="/landing-bg.jpg" // Pakai gambar background yang sama tapi digelapin banget
+                        alt="Background"
+                        fill
+                        className="object-cover opacity-10 blur-xl"
+                    />
+                </div>
+                
                 <div className="container mx-auto px-6 text-center relative z-10">
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 100 }}
-                        viewport={{ once: true }}
-                    >
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Siap Mewujudkan Rencana Anda?</h2>
-                        <p className="text-blue-100 text-xl mb-10 max-w-2xl mx-auto">
-                            Jangan biarkan dana menjadi penghalang. Ajukan sekarang dan dapatkan persetujuan instan.
+                    <FadeIn>
+                        <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">Siap Upgrade Finansialmu?</h2>
+                        <p className="text-slate-400 text-xl mb-12 max-w-2xl mx-auto">
+                            Bergabunglah dengan ribuan nasabah yang telah mempercayakan impian mereka kepada kami.
                         </p>
                         <Link href="/register">
                             <motion.button 
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="bg-white text-blue-700 px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-slate-100 transition"
+                                className="bg-white text-slate-900 px-12 py-5 rounded-full font-bold text-xl shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:shadow-[0_0_80px_rgba(255,255,255,0.4)] transition-all"
                             >
-                                Mulai Pengajuan →
+                                Mulai Pengajuan Gratis
                             </motion.button>
                         </Link>
-                    </motion.div>
+                    </FadeIn>
                 </div>
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-                <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-                    <div className="mb-4 md:mb-0">
-                        <h4 className="text-white text-xl font-bold">Pinjaman<span className="text-blue-500">App</span></h4>
-                        <p className="text-sm mt-2">Solusi finansial masa depan.</p>
-                    </div>
-                    <div className="text-sm text-center md:text-right">
-                        <p>&copy; {new Date().getFullYear()} PT Finansial Masa Depan. All rights reserved.</p>
-                        <div className="flex gap-4 justify-center md:justify-end mt-4">
-                            <a href="#" className="hover:text-white transition">Privacy Policy</a>
-                            <a href="#" className="hover:text-white transition">Terms of Service</a>
+            <footer className="bg-white pt-20 pb-10 border-t border-slate-100">
+                <div className="container mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div>
+                            <h4 className="text-2xl font-bold text-slate-900">Pinjaman<span className="text-blue-600">App</span></h4>
+                            <p className="text-slate-500 mt-2 text-sm">© 2025 PT Finansial Masa Depan.</p>
+                        </div>
+                        <div className="flex gap-8 text-slate-600 font-medium">
+                            <a href="#" className="hover:text-blue-600 transition">Kebijakan Privasi</a>
+                            <a href="#" className="hover:text-blue-600 transition">Syarat & Ketentuan</a>
+                            <a href="#" className="hover:text-blue-600 transition">Bantuan</a>
                         </div>
                     </div>
                 </div>
@@ -233,42 +303,38 @@ export default function HomePage() {
     );
 }
 
-// --- SUB-COMPONENTS (Fixed for TypeScript) ---
+// --- REUSABLE SUB-COMPONENTS (Agar kode bersih) ---
 
-interface FeatureCardProps {
-    icon: any; 
-    title: string;
-    desc: string;
-    color: string;
-    bg: string;
-}
-
-function FeatureCard({ icon: Icon, title, desc, color, bg }: FeatureCardProps) {
+function ProFeatureCard({ icon: Icon, title, desc, delay }: { icon: any, title: string, desc: string, delay: number }) {
     return (
-        <motion.div 
-            whileHover={{ y: -10 }}
-            className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300"
-        >
-            <div className={`w-14 h-14 ${bg} ${color} rounded-2xl flex items-center justify-center mb-6`}>
-                <Icon size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-3">{title}</h3>
-            <p className="text-slate-500 leading-relaxed">{desc}</p>
-        </motion.div>
+        <FadeIn delay={delay}>
+            <motion.div 
+                whileHover={{ y: -10 }}
+                className="group bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-blue-100 transition-all duration-300 h-full"
+            >
+                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 text-slate-900 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <Icon size={32} />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">{title}</h3>
+                <p className="text-slate-500 leading-relaxed font-medium">{desc}</p>
+            </motion.div>
+        </FadeIn>
     );
 }
 
-interface BenefitItemProps {
-    text: string;
-}
-
-function BenefitItem({ text }: BenefitItemProps) {
+function ProBenefitItem({ text, delay }: { text: string, delay: number }) {
     return (
-        <div className="flex items-center gap-4">
-            <div className="min-w-[24px] text-green-500">
-                <CheckCircle2 size={24} />
+        <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: delay, duration: 0.5 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-5 p-4 rounded-2xl hover:bg-slate-50 transition-colors"
+        >
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                <CheckCircle2 size={18} strokeWidth={3} />
             </div>
-            <p className="text-lg text-slate-700 font-medium">{text}</p>
-        </div>
+            <p className="text-lg text-slate-800 font-bold">{text}</p>
+        </motion.div>
     );
 }

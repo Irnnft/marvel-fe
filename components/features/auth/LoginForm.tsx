@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { validateEmail } from '@/lib/validation';
+import { Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react'; // ✅ Tambah Eye, EyeOff
 
 interface LoginFormProps {
     onSubmit: (email: string, password: string) => Promise<void>;
@@ -11,6 +12,10 @@ interface LoginFormProps {
 export default function LoginForm({ onSubmit, loading = false, error }: LoginFormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
+    // ✅ State buat intip password
+    const [showPassword, setShowPassword] = useState(false);
+    
     const [errors, setErrors] = useState({ email: '', password: '' });
 
     const validateForm = (): boolean => {
@@ -32,9 +37,16 @@ export default function LoginForm({ onSubmit, loading = false, error }: LoginFor
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-center gap-2 animate-pulse">
+                    <AlertCircle size={18} />
+                    <span className="text-sm">{error}</span>
+                </div>
+            )}
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300 ml-1">Email</label>
                 <input
                     type="email"
                     value={email}
@@ -46,49 +58,61 @@ export default function LoginForm({ onSubmit, loading = false, error }: LoginFor
                         const err = validateEmail(email);
                         setErrors({ ...errors, email: err || '' });
                     }}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                        errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                    }`}
+                    className={`w-full bg-white/5 border text-white rounded-xl px-4 py-3 outline-none focus:ring-1 transition-all placeholder:text-slate-500
+                        ${errors.email 
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                            : 'border-white/10 focus:border-indigo-500 focus:ring-indigo-500'
+                        }`}
+                    placeholder="nama@email.com"
                     disabled={loading}
-                    required
                 />
-                {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-red-400 text-xs ml-1">{errors.email}</p>}
             </div>
 
-            <div>
-                <label className="block text-sm font-medium mb-1">Password</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => {
-                        setPassword(e.target.value);
-                        setErrors({ ...errors, password: '' });
-                    }}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                        errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                    }`}
-                    disabled={loading}
-                    required
-                />
-                {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                )}
-            </div>
-
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                    {error}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300 ml-1">Password</label>
+                <div className="relative">
+                    <input
+                        // ✅ Logika ganti tipe text/password
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setErrors({ ...errors, password: '' });
+                        }}
+                        className={`w-full bg-white/5 border text-white rounded-xl px-4 py-3 outline-none focus:ring-1 transition-all placeholder:text-slate-500 pr-12
+                            ${errors.password 
+                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                                : 'border-white/10 focus:border-indigo-500 focus:ring-indigo-500'
+                            }`}
+                        placeholder="••••••••"
+                        disabled={loading}
+                    />
+                    {/* ✅ Tombol Mata */}
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors"
+                    >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                 </div>
-            )}
+                {errors.password && <p className="text-red-400 text-xs ml-1">{errors.password}</p>}
+            </div>
 
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
             >
-                {loading ? 'Loading...' : 'Login'}
+                {loading ? (
+                    <>
+                        <Loader2 size={20} className="animate-spin" />
+                        <span>Memproses...</span>
+                    </>
+                ) : (
+                    "Masuk ke Akun"
+                )}
             </button>
         </form>
     );
